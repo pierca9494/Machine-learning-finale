@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import load_digits
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
@@ -29,7 +29,7 @@ class MNISTClassifier:
         print(self.digits.images[0])
         
         # Istogramma delle classi
-        plt.figure(figsize=(8, 5))
+        plt.figure(figsize=(10, 5))
         plt.hist(self.digits.target, bins=len(np.unique(self.digits.target)), rwidth=0.8, color='skyblue', edgecolor='black')
         plt.title("Distribuzione delle Classi")
         plt.xlabel("Classe")
@@ -85,11 +85,62 @@ class MNISTClassifier:
         plt.title('Matrice di Confusione')
         plt.show()
 
-# Utilizzo della classe
-classifier = MNISTClassifier()
-classifier.explore_data()
-# classifier.visualize_data()
-# classifier.preprocess_data()
-# classifier.choose_model(kernel='linear')
-# classifier.train_model()
-# classifier.evaluate_model()
+    def cross_validate_model(self, cv=5):
+        if self.model is None:
+            raise ValueError("Model not initialized. Call choose_model() first.")
+        X, y = self.digits.data, self.digits.target
+        scaler = MinMaxScaler()
+        X_scaled = scaler.fit_transform(X)
+        scores = cross_val_score(self.model, X_scaled, y, cv=cv)
+        print(f"Accuratezza media con cross-validation ({cv}-fold): {scores.mean():.2f}")
+        print(f"Deviazione standard: {scores.std():.2f}")
+
+if __name__ == "__main__":
+    classifier = MNISTClassifier()
+    
+    while True:
+        print("\nScegli un'opzione:")
+        print("1. Esplora il dataset")
+        print("2. Visualizza esempi di dati")
+        print("3. Preprocessa i dati")
+        print("4. Scegli il modello")
+        print("5. Addestra il modello")
+        print("6. Valuta il modello")
+        print("7. Esegui cross-validation")
+        print("8. Esci")
+        
+        choice = input("Inserisci il numero dell'opzione desiderata: ")
+        
+        if choice == "1":
+            classifier.explore_data()
+        elif choice == "2":
+            classifier.visualize_data()
+        elif choice == "3":
+            classifier.preprocess_data()
+            print("Dati preprocessati con successo.")
+        elif choice == "4":
+            kernel = input("Inserisci il kernel desiderato per l'SVM (default: 'linear'): ") or 'linear'
+            classifier.choose_model(kernel=kernel)
+            print(f"Modello SVM con kernel '{kernel}' selezionato.")
+        elif choice == "5":
+            try:
+                classifier.train_model()
+                print("Modello addestrato con successo.")
+            except ValueError as e:
+                print(e)
+        elif choice == "6":
+            try:
+                classifier.evaluate_model()
+            except ValueError as e:
+                print(e)
+        elif choice == "7":
+            try:
+                folds = int(input("Inserisci il numero di fold per la cross-validation (default: 5): ") or 5)
+                classifier.cross_validate_model(cv=folds)
+            except ValueError as e:
+                print(e)
+        elif choice == "8":
+            print("Uscita dal programma.")
+            break
+        else:
+            print("Scelta non valida. Riprova.")
