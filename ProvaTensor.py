@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.python.keras import layers, models
 from  tensorflow_datasets import mnist
+import keras 
 import matplotlib.pyplot as plt
 
 # Carica il dataset MNIST
