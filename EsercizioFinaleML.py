@@ -7,6 +7,7 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import seaborn as sns
 
+
 class MNISTClassifier:
     def __init__(self):
         self.digits = load_digits()
